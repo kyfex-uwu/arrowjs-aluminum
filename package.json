@@ -1,0 +1,25 @@
+{
+  "name": "arrowjs-aluminum",
+  "version": "0.9.1",
+  "description": "Reactivity without the framework... with the framework",
+  "author": "kyfex",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@arrow-js/core": "^1.0.0-alpha.10"
+  },
+  "devDependencies": {
+    "express": "^5.1.0",
+    "typescript": "^5.9.3"
+  },
+
+  "files": ["./dist/*"],
+  "main": "./dist/index.js",
+  "homepage": "https://kyfex-uwu.github.io/arrowjs-aluminum/",
+  "bugs": {
+    "url": "https://github.com/kyfex-uwu/arrowjs-aluminum/issues"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
