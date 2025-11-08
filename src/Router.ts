@@ -128,16 +128,11 @@ export class PageAttachedRouter extends Router{
      * Rerenders the page (and calls `this.onRender` if it was defined)
      */
     public rerender(){
-        // const data = ref(html``);
         const path = this.getPath(this.location.value.join("/"));
-        const toRender = html`${path}`;
-        // data.value = path;
         if(this.rootElement !== undefined) {
             this.rootElement.replaceChildren();
             html`${this.transformBeforeRender(path)}`(this.rootElement);
         }
-
-        //html`${header}${_ => data.val}${footer}${modalHTML}${toastsHTML}`(document.body);
     }
 
     /**

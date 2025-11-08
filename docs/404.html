@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+    <title>ArrowJS: Aluminum</title>
+    <style>
+        body{
+            background-color: #383642;
+            color: #dbf2f6;
+            font-family: sans-serif;
+
+            min-height: 200vh;
+        }
+
+        .sidebarLink{
+            color: #7485df;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module">
+        import {PageAttachedRouter, createGenerator} from "https://esm.sh/arrowjs-aluminum";
+        import {html} from "https://esm.sh/@arrow-js/core";
+
+        const sidebarLinkGenerator = createGenerator("a", {"class":"sidebarLink"}, (dest, attributes)=>{
+            if(dest.startsWith("/"))
+                dest = "/arrowjs-aluminum"+dest;
+            attributes["@click"] = e=>{
+                e.preventDefault();
+                router.redirect(dest);
+            };
+            attributes.href = dest;
+        })
+        const sidebar = html`<div><div style="
+                width: fit-content;
+                background-color: #0006;
+                float: right;
+                padding: 1rem;
+                margin:1rem;
+                border-radius: 1.5rem;
+                box-shadow: inset 0 0 0.6rem #fff4, 0 0 1rem #0008;
+                line-height: 2rem;">
+            ${sidebarLinkGenerator.create("Introduction", "/")}<br>
+            ${sidebarLinkGenerator.create("ref", "/ref")}<br>
+            ${sidebarLinkGenerator.create("createGenerator", "/create-generator")}<br>
+            ${sidebarLinkGenerator.create("PageAttachedRouter", "/page-attached-router")}<br>
+        </div></div>`;
+
+        const router = new PageAttachedRouter(document.getElementById("root"), html`gorp`, (template)=>{
+            return html`<div></div><div style="display:grid; grid-template-columns: 1fr 50vw 1fr;">${sidebar}<main>${template}</main></div>`;
+        });
+        // router.addRoute("", ()=>html`
+        //     <div style="font-size:4em;">ArrowJS: <span style="color:#949db0;">Aluminum</span></div>
+        //     ArrowJS is a JavaScript library built on simplicity. It promises fast, clean code without compromising
+        //     modern features like reactivity and rendering. However, it's missing other common web development patterns,
+        //     making it feel closer to vanilla JS than a framework.<br><br>
+        //     ArrowJS: Aluminum aims to fill that gap by providing two much needed paradigms that are left out of
+        //     ArrowJS: routing and components. `)
+        router.rerender();
+    </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>arrowjs aluminum testing</title>
+</head>
+<body>
+<div id="target"></div>
+
+<script type="importmap">
+    {
+        "imports":{
+            "@arrow-js/core": "https://esm.sh/@arrow-js/core"
+        }
+    }
+</script>
+<script type="module">
+    import createGenerator from "/dist/ArrowElementGenerator.js";
+    import {ref} from "/dist/utils.js";
+    import {html} from "@arrow-js/core"
+    import {PageAttachedRouter} from "/dist/Router.js";
+
+    const buttons = createGenerator("span", {
+        style:`display:inline-block;
+            padding:0.5em 1em;
+            background-color:#0003;
+            border-radius: 1em;
+            user-select:none;
+            cursor:pointer;`,
+    }, (onClick, attributes)=> {
+        attributes["@click"] = onClick;
+    } );
+
+    const hehe = ref(0);
+
+    const router = new PageAttachedRouter(document.getElementById("target"), undefined, (template)=>{
+        return html`<${template}>`;
+    });
+    router.addRoute(":test", (vars) => html`testing :3 ${vars.test} * ${vars.test2} * ${vars.test3} ${Math.random()}`);
+    router.addRoute("owo", (vars) => html`testing :3 ${buttons.create(()=>html`${()=>hehe.value}`, ()=>console.log("owo"))}`);
+    router.redirect();
+
+    setInterval(()=>hehe.value = Math.random(), 1000)
+</script>
+</body>
+</html>

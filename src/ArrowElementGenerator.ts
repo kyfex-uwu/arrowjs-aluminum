@@ -64,7 +64,7 @@ export class ArrowElementGenerator<T>{
      * @param attributes Additional attributes to add to this template
      * @return A renderable {@link ArrowTemplate}
      */
-    create(contents:string|(()=>string), requiredValue:T, attributes:{
+    create(contents:string|(()=>string)|ArrowTemplate|(()=>ArrowTemplate), requiredValue:T, attributes:{
         add?:{[attribute:string]:string|(()=>string)},
         replace?:{[attribute:string]:string|(()=>string)},
         transform?:{[attribute:string]:(previousValue:(string|undefined|(()=>string)))=>string}}={}){
