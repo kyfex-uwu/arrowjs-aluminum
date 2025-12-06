@@ -112,11 +112,18 @@ export default class Router{
         for (const key in routes) {
             if (!key.startsWith(":") || routes[key] === undefined) continue;
 
-            const maybeRoute = this.getPathInternal(routes[key][routerSymbol] instanceof Router ?
-                routes[key][routerSymbol].accessRoutes() : routes[key], subPaths.slice(1), {
+            const maybeRoute = (routes[key][routerSymbol] instanceof Router && subPaths.length>1) ?
+                (routes[key][routerSymbol].getPathInternal(routes[key][routerSymbol].accessRoutes(), subPaths.slice(1), {
+                    ...variables,
+                    [key.slice(1)]:subPaths[0]!
+            }) ?? []).map(template => (routes[key]![routerSymbol] as Router).transformBeforeFetch(template, {
                 ...variables,
-                [key.slice(1)]:subPaths[0]!
-            });
+                    [key.slice(1)]:subPaths[0]!
+                }) ) :
+                this.getPathInternal(routes[key], subPaths.slice(1), {
+                    ...variables,
+                    [key.slice(1)]:subPaths[0]!
+                });
             if(maybeRoute !== undefined) toReturn.push(...maybeRoute);
         }
 
