@@ -18,7 +18,7 @@
     import createGenerator from "/dist/ArrowElementGenerator.js";
     import {ref} from "/dist/utils.js";
     import {html} from "@arrow-js/core"
-    import {PageAttachedRouter} from "/dist/Router.js";
+    import Router, {PageAttachedRouter} from "/dist/Router.js";
 
     const buttons = createGenerator("span", {
         style:`display:inline-block;
@@ -33,11 +33,17 @@
 
     const hehe = ref(0);
 
+    const subRouter = new Router(undefined, (template)=>html`[${template}]`);
+    subRouter.addRoute("", (vars)=>html`subrouter says hi`);
+    subRouter.addRoute(":var2", (vars)=>html`subrouter says: ${vars.var2}`);
+
     const router = new PageAttachedRouter(document.getElementById("target"), undefined, (template)=>{
         return html`<${template}>`;
     });
     router.addRoute(":test", (vars) => html`testing :3 ${vars.test} * ${vars.test2} * ${vars.test3} ${Math.random()}`);
     router.addRoute("owo", (vars) => html`testing :3 ${buttons.create(()=>html`${()=>hehe.value}`, ()=>console.log("owo"))}`);
+    router.addRoute("subRouter", (vars)=>html`:333333333333 `);
+    router.addRoute("subRouter", subRouter);
     router.redirect();
 
     setInterval(()=>hehe.value = Math.random(), 1000)

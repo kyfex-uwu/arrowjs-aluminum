@@ -2,33 +2,9 @@ import {type ArrowTemplate, html, reactive} from "@arrow-js/core";
 import {ref} from "./utils.js";
 
 const getRouteSymbol = Symbol("getRoute");
-type routeType = {[subPath:string]:routeType, [getRoute:symbol]:(variables:{[variableName:string]:string})=>ArrowTemplate};
-type routeWithVariables = {subRoutes:routeType, variables:{[k:string]:string}}
-
-function getPath(routes:routeType, subPaths:string[], variables:{[k:string]:string}={}):routeWithVariables|routeWithVariables[]|undefined {
-    if (subPaths.length === 0 && routes[getRouteSymbol] !== undefined) return {subRoutes:routes, variables};
-
-    //regular path
-    if (routes[subPaths[0]!] !== undefined) {
-        if(routes[subPaths[0]!] !== undefined)
-            return getPath(routes[subPaths[0]!]!, subPaths.slice(1), {...variables});
-    }
-
-    //variable path
-    const toReturn:routeWithVariables[] = [];
-    for (const key in routes) {
-        if (!key.startsWith(":") || routes[key] === undefined) continue;
-
-        const maybeRoute = getPath(routes[key], subPaths.slice(1), {
-            ...variables,
-            [key.slice(1)]:subPaths[0]!
-        });
-        if(maybeRoute instanceof Array) toReturn.push(...maybeRoute);
-        else if(maybeRoute !== undefined) toReturn.push(maybeRoute);
-    }
-
-    if(toReturn.length>0) return toReturn;
-}
+const routerSymbol = Symbol("router");
+type getRoute = (variables:{[variableName:string]:string})=>ArrowTemplate;
+type routeType = {[subPath:string]:routeType, [getRouteOrRouter:symbol]:getRoute|Router};
 
 const default404 = html`404`;
 
@@ -38,13 +14,16 @@ const default404 = html`404`;
 export default class Router{
     protected readonly routes:routeType={};
     protected readonly route404:ArrowTemplate;
+    protected readonly transformBeforeFetch;
 
     /**
      * Creates a router
      * @param route404 The template to render if no other path was found. Defaults to "404" text
+     * @param transformBeforeFetch An optional function that can transform the path before it's fetched (either in {@link getPath} or {@link getPathNo404}
      */
-    constructor(route404:ArrowTemplate=default404) {
+    constructor(route404:ArrowTemplate=default404, transformBeforeFetch?:(template:ArrowTemplate, vars:{[variableName:string]:string})=>ArrowTemplate) {
         this.route404 = route404;
+        this.transformBeforeFetch = transformBeforeFetch || (template => template);
     }
 
     /**
@@ -61,16 +40,26 @@ export default class Router{
      * or end (unless you know what you're doing)
      * @param renderTemplate The template to render at this location
      */
-    addRoute(path:string, renderTemplate:(variables:{[variableName:string]:string})=>ArrowTemplate){
+    addRoute(path:string, renderTemplate:((variables:{[variableName:string]:string})=>ArrowTemplate)|Router){
         const subPaths = path.split("/");
 
         let position = this.routes;
-        for(const nextPos of subPaths) {
-            if(position[nextPos] !== undefined) position = position[nextPos];
-            else position=position[nextPos]={};
+        for(let i=0;i<subPaths.length;i++){
+            const nextPos = subPaths[i]!;
+
+            if(position[nextPos] !== undefined && position[nextPos][routerSymbol] instanceof Router && i !== subPaths.length-1)
+                throw new Error(`Cannot create route "${path}", there is a router in the way`);
+            if(position[nextPos] !== undefined && i !== subPaths.length-1 && !(renderTemplate instanceof Router)) position = position[nextPos];
+            else{
+                if(i === subPaths.length-1 && renderTemplate instanceof Router) {
+                    position[nextPos]||={};
+                    position[nextPos][routerSymbol] = renderTemplate;
+                }
+                else position=position[nextPos]={};
+            }
         }
 
-        position[getRouteSymbol] = renderTemplate;
+        if(!(renderTemplate instanceof Router)) position[getRouteSymbol] = renderTemplate;
 
         return this;
     }
@@ -87,14 +76,50 @@ export default class Router{
      * @param location The location to fetch
      */
     getPathNo404(location:string){
-        const path = getPath(this.routes, location.split("/"));
+        const pathOptions = this.getPathInternal(this.routes, location.split("/"));
 
-        if(path instanceof Array) {
-            if(path.length === 0) return undefined;
-            if(path[0]!.subRoutes[getRouteSymbol] === undefined) return undefined;
-            return path[0]!.subRoutes[getRouteSymbol]!(path[0]!.variables);
-        }else if(path !== undefined && path.subRoutes[getRouteSymbol] !== undefined)
-            return path.subRoutes[getRouteSymbol]!(path.variables);
+        if(pathOptions === undefined || pathOptions.length === 0 || pathOptions[0] === undefined) return undefined;
+        return this.transformBeforeFetch(pathOptions[0]!);
+    }
+
+    /**
+     * @return this router's 404 route
+     */
+    get404(){ return this.route404; }
+    /**
+     * @return `this.routes`. If you want just a single route, try {@link getPath}
+     */
+    accessRoutes(){ return this.routes; }
+
+    private getPathInternal(routes:routeType, subPaths:string[], variables:{[k:string]:string}={}):ArrowTemplate[]|undefined {
+        if (subPaths.length === 0 && routes[getRouteSymbol] !== undefined)
+            return [(routes[getRouteSymbol] as getRoute)(variables)];
+
+        //regular path
+        if (routes[subPaths[0]!] !== undefined) {
+            if(routes[subPaths[0]!] !== undefined) {
+                const next = routes[subPaths[0]!]!;
+                if(next[routerSymbol] instanceof Router && subPaths.length>1){
+                    return (next[routerSymbol].getPathInternal(next[routerSymbol].accessRoutes(), subPaths.slice(1), {...variables}) ?? [])
+                        .map(template => (next[routerSymbol] as Router).transformBeforeFetch(template, {...variables}));
+                }else return this.getPathInternal(next, subPaths.slice(1), {...variables});
+            }
+        }
+
+        //variable path
+        const toReturn:ArrowTemplate[] = [];
+        for (const key in routes) {
+            if (!key.startsWith(":") || routes[key] === undefined) continue;
+
+            const maybeRoute = this.getPathInternal(routes[key][routerSymbol] instanceof Router ?
+                routes[key][routerSymbol].accessRoutes() : routes[key], subPaths.slice(1), {
+                ...variables,
+                [key.slice(1)]:subPaths[0]!
+            });
+            if(maybeRoute !== undefined) toReturn.push(...maybeRoute);
+        }
+
+        if(toReturn.length>0) return toReturn;
     }
 }
 
@@ -105,18 +130,17 @@ const differentPage = /^[A-Za-z]+:\/\/.*$/;
 export class PageAttachedRouter extends Router{
     protected readonly rootElement;
     protected readonly location = ref<string[]>([]);
-    protected readonly transformBeforeRender;
 
     /**
      * Creates a page attached router
      * @param attachTo The dom element to attach this router to. Defaults to `document.body`
      * @param route404 The template to render if no other path was found. Defaults to "404" text
-     * @param onRender Callback run when the page is rendered
+     * @param transformBeforeFetch An optional function that can transform the path before it's {@link rerender}ed
      */
-    constructor(attachTo:HTMLElement|undefined, route404?:ArrowTemplate, transformBeforeRender?:(template:ArrowTemplate)=>ArrowTemplate) {
-        super(route404);
+    constructor(attachTo:HTMLElement|undefined, route404?:ArrowTemplate,
+                transformBeforeFetch?:(template:ArrowTemplate, vars:{[variableName:string]:string})=>ArrowTemplate) {
+        super(route404, transformBeforeFetch);
         this.rootElement = attachTo;
-        this.transformBeforeRender = transformBeforeRender || (template => template);
 
         this.location.$on(()=> this.rerender());
         window.addEventListener("popstate", e => {
@@ -125,13 +149,13 @@ export class PageAttachedRouter extends Router{
     }
 
     /**
-     * Rerenders the page (and calls `this.onRender` if it was defined)
+     * Rerenders the page
      */
     public rerender(){
         const path = this.getPath(this.location.value.join("/"));
         if(this.rootElement !== undefined) {
             this.rootElement.replaceChildren();
-            html`${this.transformBeforeRender(path)}`(this.rootElement);
+            path(this.rootElement);
         }
     }
 
