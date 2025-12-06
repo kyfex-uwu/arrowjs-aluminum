@@ -76,10 +76,11 @@ export default class Router{
      * @param location The location to fetch
      */
     getPathNo404(location:string){
-        const pathOptions = this.getPathInternal(this.routes, location.split("/"));
+        const vars = {};
+        const pathOptions = this.getPathInternal(this.routes, location.split("/"), vars);
 
         if(pathOptions === undefined || pathOptions.length === 0 || pathOptions[0] === undefined) return undefined;
-        return this.transformBeforeFetch(pathOptions[0]!);
+        return this.transformBeforeFetch(pathOptions[0]!, vars);
     }
 
     /**
@@ -91,7 +92,7 @@ export default class Router{
      */
     accessRoutes(){ return this.routes; }
 
-    private getPathInternal(routes:routeType, subPaths:string[], variables:{[k:string]:string}={}):ArrowTemplate[]|undefined {
+    private getPathInternal(routes:routeType, subPaths:string[], variables:{[k:string]:string}):ArrowTemplate[]|undefined {
         if (subPaths.length === 0 && routes[getRouteSymbol] !== undefined)
             return [(routes[getRouteSymbol] as getRoute)(variables)];
 
