@@ -58,7 +58,7 @@
             ${sidebarLinkGenerator.create("PageAttachedRouter", "/page-attached-router")}<br>
         </div></div>`;
 
-        const router = new PageAttachedRouter(document.getElementById("root"), html`gorp`, (template)=>{
+        const router = new PageAttachedRouter(document.getElementById("root"), html`404 - docs coming soon`, (template)=>{
             return html`<div></div><div style="display:grid; grid-template-columns: 1fr 50vw 1fr;">${sidebar}<main>${template}</main></div>`;
         });
         // router.addRoute("", ()=>html`
