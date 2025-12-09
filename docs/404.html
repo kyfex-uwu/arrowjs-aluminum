@@ -38,8 +38,8 @@
             if(dest.startsWith("/"))
                 dest = "/arrowjs-aluminum"+dest;
             attributes["@click"] = e=>{
-                e.preventDefault();
                 router.redirect(dest);
+                e.preventDefault();
             };
             attributes.href = dest;
         });
@@ -61,18 +61,18 @@
         const router = new PageAttachedRouter(document.getElementById("root"), html`404 - docs coming soon`, (template)=>{
             return html`<div></div><div style="display:grid; grid-template-columns: 1fr 50vw 1fr;">${sidebar}<main>${template}</main></div>`;
         });
-        // router.addRoute("", ()=>html`
-        //     <div style="font-size:4em;">ArrowJS: <span style="color:#949db0;">Aluminum</span></div>
-        //     ArrowJS is a JavaScript library built on simplicity. It promises fast, clean code without compromising
-        //     modern features like reactivity and rendering. However, it's missing other common web development patterns,
-        //     making it feel closer to vanilla JS than a framework.<br><br>
-        //     ArrowJS: Aluminum aims to fill that gap by providing two much needed paradigms that are left out of
-        //     ArrowJS: routing and components. `)
-        // router.addRoute("ref", ()=>html`
-        //     The ${code("ref")} function provides an easy way to create a reactive value. Under the hood, ${code("const yourRef = ref(yourValue)")} is functionally
-        //     identical to ${code("reactive({value:yourValue)})")}. For simplicity, you can also call ${code(".$on()")} and ${code(".$off()")} directly on
-        //     ${code("yourRef")}, which functions the same as calling those methods with the internal "value" property.`)
         router.addRoute("", ()=>html`
+            <div style="font-size:4em;">ArrowJS: <span style="color:#949db0;">Aluminum</span></div>
+            ArrowJS is a JavaScript library built on simplicity. It promises fast, clean code without compromising
+            modern features like reactivity and rendering. However, it's missing other common web development patterns,
+            making it feel closer to vanilla JS than a framework.<br><br>
+            ArrowJS: Aluminum aims to fill that gap by providing two much needed paradigms that are left out of
+            ArrowJS: routing and components. `)
+        router.addRoute("ref", ()=>html`
+            The ${code("ref")} function provides an easy way to create a reactive value. Under the hood, ${code("const yourRef = ref(yourValue)")} is functionally
+            identical to ${code("reactive({value:yourValue)})")}. For simplicity, you can also call ${code(".$on()")} and ${code(".$off()")} directly on
+            ${code("yourRef")}, which functions the same as calling those methods with the internal "value" property.`)
+        router.addRoute("PageAttachedRouter", ()=>html`
             <p>The ${code("PageAttachedRouter")} is exactly what you'd expect when you think of a web router: it renders
             some page depending on the current URL. In addition to all the capabilities of the Router, it can force a
             page rerender via the ${code("rerender")} function and it can redirect to a new page without reloading the
