@@ -27,9 +27,18 @@
 </head>
 <body>
     <div id="root"></div>
+    <script type="importmap">
+        {
+            "imports":{
+                "@arrow-js/core": "https://esm.sh/@arrow-js/core",
+                "arrowjs-aluminum": "/dist/index.js"
+            }
+        }
+    </script>
     <script type="module">
-        import {PageAttachedRouter, createGenerator} from "https://esm.sh/arrowjs-aluminum";
-        import {html} from "https://esm.sh/@arrow-js/core";
+        //"arrowjs-aluminum": "https://esm.sh/arrowjs-aluminum"
+        import {PageAttachedRouter, createGenerator, Router} from "arrowjs-aluminum";
+        import {html} from "@arrow-js/core";
 
         const codeGenerator = createGenerator("span", {"class":"code"});
         const code = inside => codeGenerator.create(inside);
@@ -52,22 +61,26 @@
                 border-radius: 1.5rem;
                 box-shadow: inset 0 0 0.6rem #fff4, 0 0 1rem #0008;
                 line-height: 2rem;">
-            ${sidebarLinkGenerator.create("Introduction", "/")}<br>
-            ${sidebarLinkGenerator.create("ref", "/ref")}<br>
-            ${sidebarLinkGenerator.create("createGenerator", "/create-generator")}<br>
-            ${sidebarLinkGenerator.create("PageAttachedRouter", "/page-attached-router")}<br>
+            ${sidebarLinkGenerator.create("")`Introduction`}<br>
+            ${sidebarLinkGenerator.create("/ref")`ref`}<br>
+            ${sidebarLinkGenerator.create("/create-generator")`createGenerator`}<br>
+            ${sidebarLinkGenerator.create("/page-attached-router")`PageAttachedRouter`}<br>
         </div></div>`;
 
-        const router = new PageAttachedRouter(document.getElementById("root"), html`404 - docs coming soon`, (template)=>{
+        const router = new Router(html`404 - docs coming soon`, (template)=>{
             return html`<div></div><div style="display:grid; grid-template-columns: 1fr 50vw 1fr;">${sidebar}<main>${template}</main></div>`;
         });
         router.addRoute("", ()=>html`
-            <div style="font-size:4em;">ArrowJS: <span style="color:#949db0;">Aluminum</span></div>
-            ArrowJS is a JavaScript library built on simplicity. It promises fast, clean code without compromising
+            <div style="text-align: center">
+                <img src="https://github.com/kyfex-uwu/arrowjs-aluminum/tree/main/docs/arrowjs_aluminum.webp" style="width: 30vw; display: inline-block;">
+            </div>
+            <div>ArrowJS is a JavaScript library built on simplicity. It promises fast, clean code without compromising
             modern features like reactivity and rendering. However, it's missing other common web development patterns,
-            making it feel closer to vanilla JS than a framework.<br><br>
-            ArrowJS: Aluminum aims to fill that gap by providing two much needed paradigms that are left out of
-            ArrowJS: routing and components. `)
+            making it feel closer to vanilla JS than a framework.</div><br>
+            <div>ArrowJS: Aluminum aims to fill that gap by providing two much needed paradigms that are left out of
+            ArrowJS: routing and components.</div><br><br>
+            <div style="font-size: 0.8em; opacity:0.8;">ArrowJS: Aluminum is not affiliated with ArrowJS in any way. ArrowJS: Aluminum is a library built on top of
+            ArrowJS by a separate author.</div>`)
         router.addRoute("ref", ()=>html`
             The ${code("ref")} function provides an easy way to create a reactive value. Under the hood, ${code("const yourRef = ref(yourValue)")} is functionally
             identical to ${code("reactive({value:yourValue)})")}. For simplicity, you can also call ${code(".$on()")} and ${code(".$off()")} directly on
@@ -86,12 +99,20 @@
             one before it.)</p><br>
             <p>${code("PageAttachedRouter.rerender():void")}<br>Rerenders the current page</p>
             <p>${code("PageAttachedRouter.redirect(newLocation:string = window.location.pathname, replace?:false):boolean")}
-            <br>Redirects to ${code("newLocation")}. If ${code("replace")} is false, the old window location will not show
-            up in the history</p>
+            <br>Redirects to ${code("newLocation")}. If ${code("replace")} is false, the old window location will not
+            show up in the history</p>
             <ul>
-                <li>${code("PageAttachedRouter.redirect(\"examplePath\")")} - Redirects the page to the yourpage.com/examplePath </li>
+                <li>${code("PageAttachedRouter.redirect(\"examplePath\")")} - Redirects the page to
+                yourpage.com/examplePath </li>
             </ul>`)
-        router.rerender();
+        router.addRoute("createGenerator", ()=>html`
+            Most web libraries follow a component paradigm. ArrowJS: Aluminum provides components in a slightly
+            unconventional way`)
+
+
+        const parentRouter = new PageAttachedRouter(document.getElementById("root"), html`no page :3`);
+        parentRouter.addRoute("arrowjs-aluminum", router);
+        parentRouter.redirect();
     </script>
 </body>
 </html>

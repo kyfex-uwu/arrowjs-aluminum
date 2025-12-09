@@ -66,7 +66,7 @@ export class ArrowElementGenerator<T>{
      * @param attributes Additional attributes to add to this template
      * @return A renderable {@link ArrowTemplate}
      */
-    create(contents:string|(()=>string)|ArrowTemplate|(()=>ArrowTemplate), requiredValue:T, attributes:{
+    create(requiredValue:T, attributes:{
         add?:{[attribute:string]:attr},
         replace?:{[attribute:string]:attr},
         transform?:{[attribute:string]:(previousValue:attr|undefined)=>attr}}={}){
@@ -82,8 +82,8 @@ export class ArrowElementGenerator<T>{
         // @ts-ignore
         staticStringContents.raw=[...staticStringContents];
 
-        return html(staticStringContents,
-            ...[...orderedContents.map(data => data[1]), contents]);
+        return (strings:TemplateStringsArray, ...expSlots: any[]) =>
+            html(staticStringContents, ...[...orderedContents.map(data => data[1]), html(strings, ...expSlots)]);
     }
 
     /**
