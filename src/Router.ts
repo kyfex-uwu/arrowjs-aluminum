@@ -1,5 +1,6 @@
-import {type ArrowTemplate, html, reactive} from "@arrow-js/core";
+import {type ArrowTemplate, html} from "@arrow-js/core";
 import {ref} from "./utils.js";
+import createGenerator from "./ArrowElementGenerator.js";
 
 const getRouteSymbol = Symbol("getRoute");
 const routerSymbol = Symbol("router");
@@ -131,7 +132,7 @@ export default class Router{
     }
 }
 
-const differentPage = /^[A-Za-z]+:\/\/.*$/;
+const hrefResolver = document.createElement("a");
 /**
  * A router that can manages the web page based on the page's url
  */
@@ -152,7 +153,8 @@ export class PageAttachedRouter extends Router{
 
         this.location.$on(()=> this.rerender());
         window.addEventListener("popstate", e => {
-            if(!this.redirect(window.location.pathname)) e.preventDefault();
+            this.redirect(window.location.pathname);
+            e.preventDefault();
         });//back button handling
     }
 
@@ -171,23 +173,27 @@ export class PageAttachedRouter extends Router{
      * Updates the window's `location` and rerenders the page
      * @param newLocation The new url
      * @param replace Whether this new url should replace the current url in history or be a new entry
-     * @return If the link leads to a new domain (or starts with [a-z]://)
      */
     redirect(newLocation:string=window.location.pathname, replace?:false){
-        if(newLocation.startsWith("/")) this.location.value = newLocation.split("/").slice(1);
-        else if(newLocation.match(differentPage) !== null) return true;
-        else this.location.value = this.location.value.concat(newLocation.split("/"));
+        hrefResolver.href=newLocation;
+        const url = URL.parse(hrefResolver.href)!;
 
-        // modalContents.val=undefined;
-
-        const newPath = newLocation.split("/");
-        if (newPath[0] === "") {
-            this.location.value = newPath.slice(1);
-        } else {
-            this.location.value = this.location.value.concat(newPath);
+        if(url.host !== window.location.host) {
+            window.history[replace ? "replaceState" : "pushState"](null, "", url.href);
+            return;
         }
+        this.location.value = url.pathname.split("/").slice(1);
 
         window.history[replace ? "replaceState" : "pushState"](null, "", "/" + this.location.value.join("/"));
-        return false;
+        return;
     }
+
+    /**
+     * An ArrowTemplateGenerator that creates links that work with this router
+     */
+    public readonly linkGen = createGenerator<string>("a", {href:"#"},
+        (href, attrs)=> attrs["@click"]=(e)=> {
+            e.preventDefault();
+            this.redirect(href);
+        });
 }

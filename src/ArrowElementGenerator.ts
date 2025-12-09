@@ -1,9 +1,11 @@
 import {type ArrowTemplate, html} from "@arrow-js/core";
 
-function extendAttributes(originalAttrs:{[attribute:string]:string|(()=>string)},transformers:{
-    add?:{[attribute:string]:string|(()=>string)},
-    replace?:{[attribute:string]:string|(()=>string)},
-    transform?:{[attribute:string]:(previousValue:(string|undefined|(()=>string)))=>string}}){
+type attr = string|(()=>string)|((e:Event)=>void);
+
+function extendAttributes(originalAttrs:{[attribute:string]:attr},transformers:{
+    add?:{[attribute:string]:attr},
+    replace?:{[attribute:string]:attr},
+    transform?:{[attribute:string]:(previousValue:attr|undefined)=>attr}}){
 
     const newAttributes = {...originalAttrs};
     if(transformers.add !== undefined){
@@ -14,15 +16,15 @@ function extendAttributes(originalAttrs:{[attribute:string]:string|(()=>string)}
                 if (typeof newAttributes[attribute] === "string")
                     newAttributes[attribute] += " " + addValue;
                 else {
-                    const old = newAttributes[attribute];
+                    const old = newAttributes[attribute] as (()=>string);
                     newAttributes[attribute] = () => old() + " " + addValue;
                 }
             }else{
-                const old = newAttributes[attribute];
+                const old = newAttributes[attribute] as (()=>string);
                 if (typeof old === "function")
-                    newAttributes[attribute] = () => old() + " " + addValue();
+                    newAttributes[attribute] = () => old() + " " + (addValue as (()=>string))();
                 else
-                    newAttributes[attribute] = () => addValue() + " " + old;
+                    newAttributes[attribute] = () => (addValue as (()=>string))() + " " + old;
             }
         }
     }
@@ -50,8 +52,8 @@ export class ArrowElementGenerator<T>{
      * @param attributes The attributes on this element
      * @param createTransform A function that gets run when {@link create} is called. See {@link create} for more info
      */
-    constructor(type:string, attributes:{[attribute:string]:string|(()=>string)},
-                createTransform:(args:T, currentAttributes:{[attribute:string]:string|(()=>string)})=>void){
+    constructor(type:string, attributes:{[attribute:string]:attr},
+                createTransform:(args:T, currentAttributes:{[attribute:string]:attr})=>void){
         this.type = type;
         this.attributes = attributes;
         this.createTransform=createTransform;
@@ -65,9 +67,9 @@ export class ArrowElementGenerator<T>{
      * @return A renderable {@link ArrowTemplate}
      */
     create(contents:string|(()=>string)|ArrowTemplate|(()=>ArrowTemplate), requiredValue:T, attributes:{
-        add?:{[attribute:string]:string|(()=>string)},
-        replace?:{[attribute:string]:string|(()=>string)},
-        transform?:{[attribute:string]:(previousValue:(string|undefined|(()=>string)))=>string}}={}){
+        add?:{[attribute:string]:attr},
+        replace?:{[attribute:string]:attr},
+        transform?:{[attribute:string]:(previousValue:attr|undefined)=>attr}}={}){
 
         const newAttributes = {...this.attributes};
         this.createTransform(requiredValue, newAttributes);
@@ -93,14 +95,14 @@ export class ArrowElementGenerator<T>{
      * @return A new {@link ArrowElementGenerator} with the specified attributes, type, and transform function
      */
     extend<T2>(attributes:{
-        add?:{[attribute:string]:string|(()=>string)},
-        replace?:{[attribute:string]:string|(()=>string)},
-        transform?:{[attribute:string]:(previousValue:(string|undefined|(()=>string)))=>string}},
+        add?:{[attribute:string]:attr},
+        replace?:{[attribute:string]:attr},
+        transform?:{[attribute:string]:(previousValue:attr|undefined)=>attr}},
             newCreateTransform:(superTransform: (args: T, currentAttributes: {
-                [attribute: string]: string | (() => string)
+                [attribute: string]: attr
             }) => void) =>
                 (args:T2, currentAttributes:{
-                    [attribute:string]: string | (()=>string)
+                    [attribute:string]: attr
                 }) => void,
             type?:string){
 
@@ -116,9 +118,9 @@ const defaultGenerator = new ArrowElementGenerator("",{}, ()=>{});
  * @param createTransform A function that gets run when {@link create} is called. See {@link create} for more info
  * @return A new {@link ArrowElementGenerator} with the specified attributes, type, and transform function
  */
-export default function createGenerator<T>(type:string, attributes:{[attribute:string]:string|(()=>string)},
+export default function createGenerator<T>(type:string, attributes:{[attribute:string]:attr},
         createTransform: (args:T, currentAttributes:{
-            [attribute:string]:string|(()=>string)
+            [attribute:string]:attr
         })=>void = ()=>{}){
     return defaultGenerator.extend({replace:attributes}, ()=>createTransform, type);
 }

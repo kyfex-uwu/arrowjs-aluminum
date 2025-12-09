@@ -14,6 +14,15 @@
         .sidebarLink{
             color: #7485df;
         }
+
+        .code{
+            font-family: monospace;
+            background-color: #7485df44;
+            padding:0.2em 0.4em;
+            border-radius: 0.5em;
+
+            box-shadow: inset 0 0 0.3em #7485df88, 0 0 0.5em #7485df44;
+        }
     </style>
 </head>
 <body>
@@ -21,6 +30,9 @@
     <script type="module">
         import {PageAttachedRouter, createGenerator} from "https://esm.sh/arrowjs-aluminum";
         import {html} from "https://esm.sh/@arrow-js/core";
+
+        const codeGenerator = createGenerator("span", {"class":"code"});
+        const code = inside => codeGenerator.create(inside);
 
         const sidebarLinkGenerator = createGenerator("a", {"class":"sidebarLink"}, (dest, attributes)=>{
             if(dest.startsWith("/"))
@@ -30,7 +42,7 @@
                 router.redirect(dest);
             };
             attributes.href = dest;
-        })
+        });
         const sidebar = html`<div><div style="
                 width: fit-content;
                 background-color: #0006;
@@ -56,6 +68,29 @@
         //     making it feel closer to vanilla JS than a framework.<br><br>
         //     ArrowJS: Aluminum aims to fill that gap by providing two much needed paradigms that are left out of
         //     ArrowJS: routing and components. `)
+        // router.addRoute("ref", ()=>html`
+        //     The ${code("ref")} function provides an easy way to create a reactive value. Under the hood, ${code("const yourRef = ref(yourValue)")} is functionally
+        //     identical to ${code("reactive({value:yourValue)})")}. For simplicity, you can also call ${code(".$on()")} and ${code(".$off()")} directly on
+        //     ${code("yourRef")}, which functions the same as calling those methods with the internal "value" property.`)
+        router.addRoute("", ()=>html`
+            <p>The ${code("PageAttachedRouter")} is exactly what you'd expect when you think of a web router: it renders
+            some page depending on the current URL. In addition to all the capabilities of the Router, it can force a
+            page rerender via the ${code("rerender")} function and it can redirect to a new page without reloading the
+            site via the ${code("redirect")} function.</p>
+            <p>To use the ${code("PageAttachedRouter")}, create your router, add your routes, and then call
+            ${code("rerender")}.</p>
+            <p>The ${code("rerender")} function is very simple; it only rerenders the current page.</p>
+            <p>The ${code("redirect")} function redirects to the given path and rerenders the page. If replace is true,
+            the new path will replace the previous one; this means in the history, the previous page will have never
+            existed. (the back button won't function like you think it will, it'll skip the previous page and go to the
+            one before it.)</p><br>
+            <p>${code("PageAttachedRouter.rerender():void")}<br>Rerenders the current page</p>
+            <p>${code("PageAttachedRouter.redirect(newLocation:string = window.location.pathname, replace?:false):boolean")}
+            <br>Redirects to ${code("newLocation")}. If ${code("replace")} is false, the old window location will not show
+            up in the history</p>
+            <ul>
+                <li>${code("PageAttachedRouter.redirect(\"examplePath\")")} - Redirects the page to the yourpage.com/examplePath </li>
+            </ul>`)
         router.rerender();
     </script>
 </body>

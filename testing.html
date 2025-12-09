@@ -41,7 +41,10 @@
         return html`<${template}>`;
     });
     // router.addRoute(":test", (vars) => html`testing :3 ${vars.test} * ${vars.test2} * ${vars.test3} ${Math.random()}`);
-    router.addRoute("owo", (vars) => html`testing :3 ${buttons.create(()=>html`${()=>hehe.value}`, ()=>console.log("owo"))}`);
+    router.addRoute("owo", (vars) => html`testing :3 ${buttons.create(()=>html`${()=>hehe.value}`, ()=>console.log("owo"))} ${
+            router.linkGen.create(html`haii`, "./subRouter")}`);
+    router.addRoute("owo/owo/owo/owo", (vars) => html`testing :3 ${buttons.create(()=>html`${()=>hehe.value}`, ()=>console.log("owo"))} ${
+        router.linkGen.create(html`haii`, "./subRouter?test#test")}`);
     router.addRoute("subRouter", (vars)=>html`:333333333333 `);
     router.addRoute(":subRouter", subRouter);
     router.redirect();
