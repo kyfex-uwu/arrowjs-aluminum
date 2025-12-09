@@ -179,12 +179,12 @@ export class PageAttachedRouter extends Router{
         const url = URL.parse(hrefResolver.href)!;
 
         if(url.host !== window.location.host) {
-            window.history[replace ? "replaceState" : "pushState"](null, "", url.href);
+            window.history[replace ? "replaceState" : "pushState"](null, "", url.href+url.search+url.hash);
             return;
         }
         this.location.value = url.pathname.split("/").slice(1);
 
-        window.history[replace ? "replaceState" : "pushState"](null, "", "/" + this.location.value.join("/"));
+        window.history[replace ? "replaceState" : "pushState"](null, "", "/" + this.location.value.join("/")+url.search+url.hash);
         return;
     }
 
