@@ -61,7 +61,7 @@ export class ArrowElementGenerator<T>{
      * @param type The node type of this template. Optional, will inherit from parent if not specified
      * @return A new {@link ArrowElementGenerator} with the specified attributes, type, and transform function
      */
-    extend<T2>(attributes:{[attribute:string]:(previousValue:any)=>any}={},
+    extend<T2>(attributes:{[attribute:string]:any}={},
             newCreateTransform:(superTransform: (args: T, currentAttributes: {
                 [attribute: string]: any
             }) => void) =>

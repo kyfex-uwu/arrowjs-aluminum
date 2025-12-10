@@ -80,7 +80,7 @@
             ${sidebarLinkGenerator.create("/get-started")`Get Started`}<br><br>
             ${sidebarLinkGenerator.create("/ref")`ref`}<br>
             ${sidebarLinkGenerator.create("/create-generator")`createGenerator`}<br>
-            ${sidebarLinkGenerator.create("/page-attached-router")`PageAttachedRouter`}<br><br>
+            ${sidebarLinkGenerator.create("/page-attached-router")`PageAttachedRouter`}<br>
             ${sidebarLinkGenerator.create("/router")`Router`}<br>
         </div></div>`;
 
@@ -138,14 +138,48 @@
             ${code(".rerender()")}.</p>
             <p>The ${code("rerender")} function is very simple; it only rerenders the current page.
             ${multiCode("rerender():this // returns this, for chaining")}</p>
-            <p>The ${code("redirect")} function redirects to the given path and rerenders the page. If replace is true,
+            <p>The ${code("redirect")} function redirects to the given path and rerenders the page. If ${code("replace")} is true,
             the new path will replace the previous one; this means in the history, the previous page will have never
             existed. (The back button won't function like you think it will, it'll skip the previous page and go to the
             one before it.)
-            ${multiCode("redirect(newLocation:string = window.location.pathname, replace?:boolean")}</p><br>`)
+            ${multiCode("redirect(newLocation:string = window.location.pathname, replace?:boolean):this // returns this, for chaining")}</p><br>
+            <p>
+                To learn the rest of the capabilities of the ${code("PageAttachedRouter")}, visit the
+                ${parentRouter.link.create("./router")`Router`} page as well.
+            </p>`)
         router.addRoute("create-generator", ()=>html`
-            Most web libraries follow a component paradigm. Aluminum provides components in a slightly
-            unconventional way: you create a component generator and then use that as an ArrowJS template.`);
+            <p>
+                Most web libraries follow a component paradigm. Aluminum provides components in a slightly
+                unconventional way: you create a component generator and then use that as an ArrowJS template.
+            </p>
+            <p>
+                [WIP]
+                ${multiCode(`
+                    const generator = createGenerator("elementType", {<br>
+                    ${tab(1)}href:"some value",<br>
+                    ${tab(1)}src:()=>"some other value",<br>
+                    ${tab(1)}style:{<br>
+                        ${tab(2)}color:"red"<br>
+                    ${tab(1)}}<br>
+                    }, ({arg1, arg2}) => { // this is a "transformer"<br>
+                    ${tab(1)}//some initialization<br>
+                    });<br><br>
+
+                    html\`component here --> \${ generator.create({arg1:"foo", arg2:0xba}, {src:"overwritten", id:"new value"}) } \`;<br><br>
+
+                    const extendedGenerator = generator.extend({src:(oldSrc)=>oldSrc+" transformed", href:"overwritten"},<br>
+                    ${tab(1)}(parentTransformer) => {<br>
+                        ${tab(2)}return ({arg1, arg2, arg3}) => {<br>
+                            ${tab(3)}parentTransformer({arg1, arg2});<br>
+                            ${tab(3)}console.log(arg3); //some other initialization<br>
+                        ${tab(2)}}<br>
+                    ${tab(1)});<br><br>
+
+                    html\`extended component here --> \${ extendedGenerator.create({arg1:"foo", arg2:0xba, arg3:3621}) } \`;<br><br>
+
+                    //the JSDoc documentation hopefully is clearer, docs finishing soon
+                `)}
+            </p>`);
         router.addRoute("get-started", ()=>html`
             <p>
                 To create your Aluminum project, start by including the library in your project. Just like ArrowJS,
@@ -211,13 +245,13 @@
             </p>*/}
             `);
         router.addRoute("router", ()=>html`
-        <p>
-            If you want a router that renders to the web page, read
-            ${parentRouter.link.create("./page-attached-router")`Page Attached Router`} first.
-        </p>
-        <p>
-            The ${code("Router")}
-        </p>`);
+            <p>
+                If you want a router that renders to the web page, read
+                ${parentRouter.link.create("./page-attached-router")`Page Attached Router`} first.
+            </p>
+            <p>
+                [WIP]
+            </p>`);
 
         parentRouter.addRoute("arrowjs-aluminum", router);
         parentRouter.redirect();
