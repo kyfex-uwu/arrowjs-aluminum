@@ -80,7 +80,8 @@
             ${sidebarLinkGenerator.create("/get-started")`Get Started`}<br><br>
             ${sidebarLinkGenerator.create("/ref")`ref`}<br>
             ${sidebarLinkGenerator.create("/create-generator")`createGenerator`}<br>
-            ${sidebarLinkGenerator.create("/page-attached-router")`PageAttachedRouter`}<br>
+            ${sidebarLinkGenerator.create("/page-attached-router")`PageAttachedRouter`}<br><br>
+            ${sidebarLinkGenerator.create("/router")`Router`}<br>
         </div></div>`;
 
         const router = new Router(html`404 - docs coming soon`, (template)=>{
@@ -134,20 +135,14 @@
             page rerender via the ${code("rerender")} function and it can redirect to a new page without reloading the
             site via the ${code("redirect")} function.</p>
             <p>To use the ${code("PageAttachedRouter")}, create your router, add your routes, and then call
-            ${code("rerender")}.</p>
-            <p>The ${code("rerender")} function is very simple; it only rerenders the current page.</p>
+            ${code(".rerender()")}.</p>
+            <p>The ${code("rerender")} function is very simple; it only rerenders the current page.
+            ${multiCode("rerender():this // returns this, for chaining")}</p>
             <p>The ${code("redirect")} function redirects to the given path and rerenders the page. If replace is true,
             the new path will replace the previous one; this means in the history, the previous page will have never
-            existed. (the back button won't function like you think it will, it'll skip the previous page and go to the
-            one before it.)</p><br>
-            <p>${code("PageAttachedRouter.rerender():void")}<br>Rerenders the current page</p>
-            <p>${code("PageAttachedRouter.redirect(newLocation:string = window.location.pathname, replace?:false):boolean")}
-            <br>Redirects to ${code("newLocation")}. If ${code("replace")} is false, the old window location will not
-            show up in the history</p>
-            <ul>
-                <li>${code("PageAttachedRouter.redirect(\"examplePath\")")} - Redirects the page to
-                yourpage.com/examplePath </li>
-            </ul>`)
+            existed. (The back button won't function like you think it will, it'll skip the previous page and go to the
+            one before it.)
+            ${multiCode("redirect(newLocation:string = window.location.pathname, replace?:boolean")}</p><br>`)
         router.addRoute("create-generator", ()=>html`
             Most web libraries follow a component paradigm. Aluminum provides components in a slightly
             unconventional way: you create a component generator and then use that as an ArrowJS template.`);
@@ -215,6 +210,14 @@
                 For more details, visit the ${parentRouter.link.create("/arrowjs-aluminum/create-generator")`createGenerator`} page.
             </p>*/}
             `);
+        router.addRoute("router", ()=>html`
+        <p>
+            If you want a router that renders to the web page, read
+            ${parentRouter.link.create("./page-attached-router")`Page Attached Router`} first.
+        </p>
+        <p>
+            The ${code("Router")}
+        </p>`);
 
         parentRouter.addRoute("arrowjs-aluminum", router);
         parentRouter.redirect();

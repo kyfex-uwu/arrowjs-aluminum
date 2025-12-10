@@ -177,7 +177,7 @@ export class PageAttachedRouter extends Router{
      * @param replace Whether this new url should replace the current url in history or be a new entry
      * @return this for chaining
      */
-    redirect(newLocation:string=window.location.pathname, replace?:false){
+    redirect(newLocation:string=window.location.pathname, replace?:boolean){
         hrefResolver.href=newLocation;
         const url = URL.parse(hrefResolver.href)!;
 
