@@ -66,6 +66,8 @@
         import {PageAttachedRouter, createGenerator, Router} from "arrowjs-aluminum";
         import {html} from "@arrow-js/core";
 
+        if(window.location.pathname.endsWith("404.html")) window.location = window.location.href.split("/").slice(0,-1).join("/");
+
         const parentRouter = new PageAttachedRouter(document.getElementById("root"), html`no page :3`);
 
         const codeGenerator = createGenerator("span", {"class":"code"});
