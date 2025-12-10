@@ -157,7 +157,7 @@
 
                     html\`component here --> \${ generator.create({arg1:"foo", arg2:0xba}, {src:"overwritten", id:"new value"}) } \`;<br><br>
 
-                    const extendedGenerator = generator.extend({src:(oldSrc)=>oldSrc+" transformed", href:"overwritten"},<br>
+                    const extendedGenerator = generator.extend({src:(oldSrc)=>oldSrc+" changed", href:"overwritten"},<br>
                     ${tab(1)}(parentTransformer) => {<br>
                         ${tab(2)}return ({arg1, arg2, arg3}) => {<br>
                             ${tab(3)}parentTransformer({arg1, arg2});<br>
