@@ -179,7 +179,7 @@ export class PageAttachedRouter extends Router{
         const url = URL.parse(hrefResolver.href)!;
 
         if(url.host !== window.location.host) {
-            window.history[replace ? "replaceState" : "pushState"](null, "", url.href+url.search+url.hash);
+            window.location.href = url.href+url.search+url.hash;
             return;
         }
         this.location.value = url.pathname.split("/").slice(1);
@@ -192,8 +192,11 @@ export class PageAttachedRouter extends Router{
      * An ArrowTemplateGenerator that creates links that work with this router
      */
     public readonly linkGen = createGenerator<string>("a", {href:"#"},
-        (href, attrs)=> attrs["@click"]=(e)=> {
-            e.preventDefault();
-            this.redirect(href);
+        (href, attrs)=> {
+            attrs["@click"] = (e:Event) => {
+                e.preventDefault();
+                this.redirect(href);
+            };
+            attrs.href = href;
         });
 }

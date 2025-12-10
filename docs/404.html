@@ -11,8 +11,11 @@
             min-height: 200vh;
         }
 
-        .sidebarLink{
+        a{
             color: #7485df;
+        }
+        a:visited{
+            color: #ab74df;
         }
 
         .code{
@@ -22,6 +25,10 @@
             border-radius: 0.5em;
 
             box-shadow: inset 0 0 0.3em #7485df88, 0 0 0.5em #7485df44;
+        }
+        .code.multiline{
+            margin:1em 2em 0 2em;
+            line-height: 1.6em;
         }
     </style>
 </head>
@@ -40,14 +47,19 @@
         import {PageAttachedRouter, createGenerator, Router} from "arrowjs-aluminum";
         import {html} from "@arrow-js/core";
 
-        const codeGenerator = createGenerator("span", {"class":"code"});
-        const code = inside => codeGenerator.create(inside);
+        const parentRouter = new PageAttachedRouter(document.getElementById("root"), html`no page :3`);
 
-        const sidebarLinkGenerator = createGenerator("a", {"class":"sidebarLink"}, (dest, attributes)=>{
+        const codeGenerator = createGenerator("span", {"class":"code"});
+        const multilineCodeGenerator = codeGenerator.extend({"class":(prev)=>prev+" multiline"}, (superT)=>superT, "div")
+        const code = inside => codeGenerator.create()`${inside}`;
+        const multiCode = inside => multilineCodeGenerator.create(null)`${inside}`;
+        const tab = count => "&nbsp;&nbsp;".repeat(count);
+
+        const sidebarLinkGenerator = createGenerator("a", {}, (dest, attributes)=>{
             if(dest.startsWith("/"))
                 dest = "/arrowjs-aluminum"+dest;
             attributes["@click"] = e=>{
-                router.redirect(dest);
+                parentRouter.redirect(dest);
                 e.preventDefault();
             };
             attributes.href = dest;
@@ -61,31 +73,48 @@
                 border-radius: 1.5rem;
                 box-shadow: inset 0 0 0.6rem #fff4, 0 0 1rem #0008;
                 line-height: 2rem;">
-            ${sidebarLinkGenerator.create("")`Introduction`}<br>
+            ${sidebarLinkGenerator.create("/")`Introduction`}<br>
+            ${sidebarLinkGenerator.create("/get-started")`Get Started`}<br><br>
             ${sidebarLinkGenerator.create("/ref")`ref`}<br>
             ${sidebarLinkGenerator.create("/create-generator")`createGenerator`}<br>
             ${sidebarLinkGenerator.create("/page-attached-router")`PageAttachedRouter`}<br>
         </div></div>`;
 
         const router = new Router(html`404 - docs coming soon`, (template)=>{
-            return html`<div></div><div style="display:grid; grid-template-columns: 1fr 50vw 1fr;">${sidebar}<main>${template}</main></div>`;
+            return html`<div style="display:grid; grid-template-columns: 1fr 50vw 1fr;">${sidebar}<main>
+            <div style="display:flex">
+                <img src="/docs/arrowjs_aluminum_min.webp" style="height: 4em; display: inline-block;">
+                <div style="flex:1"></div>
+                ${parentRouter.linkGen.create("https://github.com/kyfex-uwu/arrowjs-aluminum")`
+                    <svg width="2em" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                        <title>GitHub</title>
+                        <path fill="#ffffff" d="M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.08 10 14.94 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16 8C16 3.58 12.42 0 8 0Z" transform="scale(64)"></path>
+                    </svg>`}
+            </div>${template}</main></div>`;
         });
         router.addRoute("", ()=>html`
             <div style="text-align: center">
-                <img src="https://github.com/kyfex-uwu/arrowjs-aluminum/tree/main/docs/arrowjs_aluminum.webp" style="width: 30vw; display: inline-block;">
+                <img src="https://github.com/kyfex-uwu/arrowjs-aluminum/tree/main/docs/arrowjs_aluminum.webp"
+                     style="width: 30vw; display: inline-block;">
             </div>
-            <div>ArrowJS is a JavaScript library built on simplicity. It promises fast, clean code without compromising
-            modern features like reactivity and rendering. However, it's missing other common web development patterns,
-            making it feel closer to vanilla JS than a framework.</div><br>
-            <div>ArrowJS: Aluminum aims to fill that gap by providing two much needed paradigms that are left out of
-            ArrowJS: routing and components.</div><br><br>
-            <div style="font-size: 0.8em; opacity:0.8;">ArrowJS: Aluminum is not affiliated with ArrowJS in any way. ArrowJS: Aluminum is a library built on top of
-            ArrowJS by a separate author.</div>`)
+            <p>
+                ArrowJS is a JavaScript library built on simplicity. It promises fast, clean code without compromising
+                modern features like reactivity and rendering. However, it's missing other common web development
+                patterns, making it feel closer to vanilla JS than a framework.
+            </p>
+            <p>
+                ArrowJS: Aluminum aims to fill that gap by providing two much needed paradigms that are left out of
+                ArrowJS: routing and components.
+            </p><br>
+            <p style="font-size: 0.8em; opacity:0.8;">
+                ArrowJS: Aluminum is not affiliated with ArrowJS in any way. ArrowJS: Aluminum is a library built on
+                top of ArrowJS by a separate author.
+            </p>`)
         router.addRoute("ref", ()=>html`
             The ${code("ref")} function provides an easy way to create a reactive value. Under the hood, ${code("const yourRef = ref(yourValue)")} is functionally
             identical to ${code("reactive({value:yourValue)})")}. For simplicity, you can also call ${code(".$on()")} and ${code(".$off()")} directly on
             ${code("yourRef")}, which functions the same as calling those methods with the internal "value" property.`)
-        router.addRoute("PageAttachedRouter", ()=>html`
+        router.addRoute("page-attached-router", ()=>html`
             <p>The ${code("PageAttachedRouter")} is exactly what you'd expect when you think of a web router: it renders
             some page depending on the current URL. In addition to all the capabilities of the Router, it can force a
             page rerender via the ${code("rerender")} function and it can redirect to a new page without reloading the
@@ -105,12 +134,58 @@
                 <li>${code("PageAttachedRouter.redirect(\"examplePath\")")} - Redirects the page to
                 yourpage.com/examplePath </li>
             </ul>`)
-        router.addRoute("createGenerator", ()=>html`
-            Most web libraries follow a component paradigm. ArrowJS: Aluminum provides components in a slightly
-            unconventional way`)
+        router.addRoute("create-generator", ()=>html`
+            Most web libraries follow a component paradigm. Aluminum provides components in a slightly
+            unconventional way: you create a component generator and then use that as an ArrowJS template.`);
+        router.addRoute("get-started", ()=>html`
+            <p>
+                To create your Aluminum project, start by including the library in your project. Just like ArrowJS,
+                this can be done in one of two ways: by including it from a CDN or through a package manager + bundler.
+            </p>
+            <p>
+                Using a package manager:<br>
+                ${multiCode(html`
+                npm install arrowjs-aluminum<br>
+                ${tab(1)}or<br>
+                yarn add arrowjs-aluminum
+                `)}
+            </p>
+            <p>
+                From a CDN:<br>
+                ${multiCode(html`
+                    &lt;script type="module"><br>
+                    ${tab(1)}import { ... } from 'https://esm.sh/arrowjs-aluminum';<br>
+                    ${tab(1)}// code goes here<br>
+                    &lt;/script>
+                `)}
+            </p>
+            <p>
+                This will automatically download/depend on ArrowJS as well, so you don't need to download it separately.
+            </p>
+            <p>
+                To create a component generator, call ${code("createGenerator")} with your attributes. For example:<br>
+                ${multiCode(html`createGenerator(<br>
+                ${tab(1)}"span", // the DOM element type this component will be<br><br>
 
+                ${tab(1)}{ // an object with all of your component's properties.<br>
+                    ${tab(2)}// these will be attached to the element just like you <br>
+                    ${tab(2)}// would expect when using the html\`\` template <br><br>
+                    ${tab(2)}style:"color:red",<br>
+                    ${tab(2)}id:()=>"someID",<br>
+                    ${tab(2)}"@click":()=>clickFunction()<br>
+                ${tab(1)}},<br><br>
 
-        const parentRouter = new PageAttachedRouter(document.getElementById("root"), html`no page :3`);
+                ${tab(1)}({argument1, argument2}, currentAttributes) => { <br>
+                ${tab(1)}// this function is the way to add required attributes to<br>
+                ${tab(1)}// your component<br>
+                    ${tab(2)}// some initialization here<br>
+                    ${tab(2)}currentAttributes.<br>
+                ${tab(1)}}<br>
+                );`)}<br>
+                For more details, visit the ${parentRouter.linkGen.create("/arrowjs-aluminum/create-generator")`createGenerator`} page.
+            </p>
+            `);
+
         parentRouter.addRoute("arrowjs-aluminum", router);
         parentRouter.redirect();
     </script>
