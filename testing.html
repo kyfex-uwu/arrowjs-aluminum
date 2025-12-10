@@ -42,9 +42,9 @@
     });
     // router.addRoute(":test", (vars) => html`testing :3 ${vars.test} * ${vars.test2} * ${vars.test3} ${Math.random()}`);
     router.addRoute("owo", (vars) => html`testing :3 ${buttons.create(()=>console.log("owo"))`${()=>hehe.value}`} ${
-            router.linkGen.create("./subRouter")`haii`}`);
+            router.link.create("./subRouter")`haii`}`);
     router.addRoute("owo/owo/owo/owo", (vars) => html`testing :3 ${buttons.create(()=>console.log("owo"))`${()=>hehe.value}`} ${
-        router.linkGen.create("./subRouter?test#test")`haii`}`);
+        router.link.create("./subRouter?test#test")`haii`}`);
     router.addRoute("subRouter", (vars)=>html`:333333333333 `);
     router.addRoute(":subRouter", subRouter);
     router.redirect();

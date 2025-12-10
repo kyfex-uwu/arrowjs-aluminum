@@ -160,6 +160,7 @@ export class PageAttachedRouter extends Router{
 
     /**
      * Rerenders the page
+     * @return this for chaining
      */
     public rerender(){
         const path = this.getPath(this.location.value.join("/"));
@@ -167,12 +168,14 @@ export class PageAttachedRouter extends Router{
             this.rootElement.replaceChildren();
             path(this.rootElement);
         }
+        return this;
     }
 
     /**
      * Updates the window's `location` and rerenders the page
      * @param newLocation The new url
      * @param replace Whether this new url should replace the current url in history or be a new entry
+     * @return this for chaining
      */
     redirect(newLocation:string=window.location.pathname, replace?:false){
         hrefResolver.href=newLocation;
@@ -180,18 +183,18 @@ export class PageAttachedRouter extends Router{
 
         if(url.host !== window.location.host) {
             window.location.href = url.href+url.search+url.hash;
-            return;
+            return this;
         }
         this.location.value = url.pathname.split("/").slice(1);
 
         window.history[replace ? "replaceState" : "pushState"](null, "", "/" + this.location.value.join("/")+url.search+url.hash);
-        return;
+        return this;
     }
 
     /**
      * An ArrowTemplateGenerator that creates links that work with this router
      */
-    public readonly linkGen = createGenerator<string>("a", {href:"#"},
+    public readonly link = createGenerator<string>("a", {href:"#"},
         (href, attrs)=> {
             attrs["@click"] = (e:Event) => {
                 e.preventDefault();
