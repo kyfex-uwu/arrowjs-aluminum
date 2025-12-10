@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>ArrowJS: Aluminum</title>
-    <link rel="icon" type="image/x-icon" href="https://github.com/kyfex-uwu/arrowjs-aluminum/tree/main/docs/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/kyfex-uwu/arrowjs-aluminum/refs/heads/main/docs/favicon.ico">
     <style>
         body{
             background-color: #383642;
@@ -41,12 +41,11 @@
         {
             "imports":{
                 "@arrow-js/core": "https://esm.sh/@arrow-js/core",
-                "arrowjs-aluminum": "https://esm.sh/arrowjs-aluminum"
+                "arrowjs-aluminum": "https://esm.sh/arrowjs-aluminum@1.0.1"
             }
         }
     </script>
     <script type="module">
-        //"arrowjs-aluminum": "https://esm.sh/arrowjs-aluminum"
         import {PageAttachedRouter, createGenerator, Router} from "arrowjs-aluminum";
         import {html} from "@arrow-js/core";
 
@@ -58,15 +57,7 @@
         const multiCode = inside => multilineCodeGenerator.create(null)`${inside}`;
         const tab = count => "&nbsp;&nbsp;".repeat(count);
 
-        const sidebarLinkGenerator = createGenerator("a", {}, (dest, attributes)=>{
-            if(dest.startsWith("/"))
-                dest = "/arrowjs-aluminum"+dest;
-            attributes["@click"] = e=>{
-                parentRouter.redirect(dest);
-                e.preventDefault();
-            };
-            attributes.href = dest;
-        });
+        console.log(parentRouter)
         const sidebar = html`<div><div style="
                 width: fit-content;
                 background-color: #0006;
@@ -76,18 +67,18 @@
                 border-radius: 1.5rem;
                 box-shadow: inset 0 0 0.6rem #fff4, 0 0 1rem #0008;
                 line-height: 2rem;">
-            ${sidebarLinkGenerator.create("/")`Introduction`}<br>
-            ${sidebarLinkGenerator.create("/get-started")`Get Started`}<br><br>
-            ${sidebarLinkGenerator.create("/ref")`ref`}<br>
-            ${sidebarLinkGenerator.create("/create-generator")`createGenerator`}<br>
-            ${sidebarLinkGenerator.create("/page-attached-router")`PageAttachedRouter`}<br>
-            ${sidebarLinkGenerator.create("/router")`Router`}<br>
+            ${parentRouter.link.create("/arrowjs-aluminum/")`Introduction`}<br>
+            ${parentRouter.link.create("/arrowjs-aluminum/get-started")`Get Started`}<br><br>
+            ${parentRouter.link.create("/arrowjs-aluminum/ref")`ref`}<br>
+            ${parentRouter.link.create("/arrowjs-aluminum/create-generator")`createGenerator`}<br>
+            ${parentRouter.link.create("/arrowjs-aluminum/page-attached-router")`PageAttachedRouter`}<br>
+            ${parentRouter.link.create("/arrowjs-aluminum/router")`Router`}<br>
         </div></div>`;
 
         const router = new Router(html`404 - docs coming soon`, (template)=>{
             return html`<div style="display:grid; grid-template-columns: 1fr 50vw 1fr;">${sidebar}<main>
             <div style="display:flex">
-                <img src="https://github.com/kyfex-uwu/arrowjs-aluminum/tree/main/docs/arrowjs_aluminum_min.webp" style="height: 4em; display: inline-block;">
+                <img src="https://raw.githubusercontent.com/kyfex-uwu/arrowjs-aluminum/refs/heads/main/docs/arrowjs_aluminum_min.webp" style="height: 4em; display: inline-block;">
                 <div style="flex:1"></div>
                 ${parentRouter.link.create("https://github.com/kyfex-uwu/arrowjs-aluminum")`
                     <svg width="2em" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
@@ -98,7 +89,7 @@
         });
         router.addRoute("", ()=>html`
             <div style="text-align: center">
-                <img src="https://github.com/kyfex-uwu/arrowjs-aluminum/tree/main/docs/arrowjs_aluminum.webp"
+                <img src="https://raw.githubusercontent.com/kyfex-uwu/arrowjs-aluminum/refs/heads/main/docs/arrowjs_aluminum.webp"
                      style="width: 30vw; display: inline-block;">
             </div>
             <p>
