@@ -12,9 +12,8 @@ function extendAttributes(originalAttrs:{[attribute:string]:any},transformers:{[
  * A generator for extendable templates that can be rendered. In other frameworks, this would be a "component generator"
  */
 export class ArrowElementGenerator<T>{
-    public readonly type;
     protected readonly attributes;
-    protected readonly createTransform;
+    protected readonly transform;
     protected readonly htmlTransform;
 
     /**
@@ -25,11 +24,10 @@ export class ArrowElementGenerator<T>{
      * @param optData.createTransform A function that gets run when {@link create} is called. See {@link create} for more info
      * @param optData.htmlTransform A function that takes the template that this element is created with and transforms it
      */
-    constructor(type:string, attributes:{[attribute:string]:any}, optData:{
+    constructor(attributes:{[attribute:string]:any}, optData:{
         createTransform?:(args:T, currentAttributes:{[attribute:string]:any})=>void,
         htmlTransform?:(inner:ArrowTemplate)=>ArrowTemplate
     }={}){
-        this.type = type;
         this.attributes = attributes;
         this.createTransform=optData.createTransform || (()=>{});
         this.htmlTransform=optData.htmlTransform || ((inside)=>inside);
